@@ -282,6 +282,13 @@
                                         </a>
                                     </li>
 
+                                     <li>
+                                        <a href="{{ route('dashboard_config.dashboard') }}" class="nav-link px-3">
+                                            <span class="me-2"></span>
+                                            <span>Dashboard</span>
+                                        </a>
+                                    </li>
+
                                 </ul>
                             </div>
                         </li>

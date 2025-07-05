@@ -39,8 +39,10 @@ class HomeController extends Controller
 
 
         $last_data_production = OrdemProducao::max('data');
-        //$last_production = OrdemProducao::where('data', $last_data_production)->first();
-        $recursos = Produto::whereIn('id', [12, 14,30, 347, 27])->get();
+        $productIds = DB::table('dashboard_config')->pluck('produto_id');
+
+        //$recursos = Produto::whereIn('id', [12, 14,30, 347, 27])->get(); 
+        $recursos = Produto::whereIn('id', $productIds)->get(); 
         foreach ($recursos as $recurso) {
             $recurso->percent_estoque = round($recurso->estoque_atual / $recurso->estoque_maximo * 100, 0);
             $recurso->estoque_util = $recurso->estoque_atual - $recurso->lastro;
@@ -49,7 +51,6 @@ class HomeController extends Controller
             $recurso->nome_prod = $recurso->nome;
             $recurso->autonomia = round($recurso->estoque_util / $recurso->teor_consumo);
         }
-
 
         $Producao_britagem = ProducaoBritagem::orderBy('id', 'desc')->first();
         // Pegar o valor do horímetro parcial desse registro
@@ -72,43 +73,6 @@ class HomeController extends Controller
             $producao_diaria_pedra2 = 0;
         }
 
-
-
-
-
-        /* 
-        // Buscar a data do último dia registrado
-        $ultimaData = DB::table('producao_britagem')
-            ->select(DB::raw('DATE(data) as data'))
-            ->orderByDesc('data')
-            ->first()
-            ->data;
-
-        $subquery = DB::table('producao_britagem')
-            ->select(DB::raw('TIME(hora) as hora'), 'producao_po', 'id')  // Inclua 'id' para ordenar posteriormente
-            ->whereDate('data', $ultimaData)
-            ->orderBy('id', 'desc')
-            ->limit(1000);
-
-        // Em seguida, faça uma consulta principal para ordenar esses resultados em ordem crescente pelo id
-        $producoes = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
-            ->mergeBindings($subquery)  // Merge bindings é necessário para subconsultas
-            ->orderBy('id', 'asc')
-            ->get();
-
-
-
-        // Preparar os dados para o gráfico
-        $labels = $producoes->pluck('hora')->toArray();
-        $data = $producoes->pluck('producao_po')->toArray();
-
-
-
-        $chartData = [
-            'labels' => $labels,
-            'data' => $data,
-            'dataTitulo' => $ultimaData
-        ]; */
 
         // Fetch the last recorded date
         $ultimaData = DB::table('producao_britagem')
@@ -148,7 +112,7 @@ class HomeController extends Controller
             'producao_diaria_pedra2' => $producao_diaria_pedra2,
 
         ]);
-        //return ('chegameos aqui');
+
     }
 
 

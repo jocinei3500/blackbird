@@ -264,6 +264,15 @@ Route::middleware('auth')->prefix('/recursos-producao')->group(function() {
 
 });
 
+//grupo dashboard-config
+Route::middleware('auth')->prefix('/dashboard-config')->group(function() {
+
+    Route::get('dashboard-config','App\Http\Controllers\DashboardConfigController@produtos')->name('dashboard_config.dashboard');  
+    
+    Route::delete('destroy/{operacao}','App\Http\Controllers\DashboardConfigController@destroy')->name('dashboard_config.destroy');
+
+});
+
 //abastecimento
 Route::middleware('auth')->resource('/abastecimento', 'App\Http\Controllers\AbastecimentoController');
 Route::middleware('auth')->delete('abastecimento/destroy', 'App\Http\Controllers\AbastecimentoController@destroy')->name('abastecimento.destroy');
