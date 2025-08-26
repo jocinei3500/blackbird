@@ -62,7 +62,8 @@ class AbastecimentoController extends Controller
 
         return view('app.abastecimento.index', [
             'abastecimentos' => $abastecimentos,
-            'equipamentos' => $equipamentos, 'request' => $request->all(),
+            'equipamentos' => $equipamentos,
+            'request' => $request->all(),
             'filtros' => $filtros
         ]);
     }
@@ -105,7 +106,8 @@ class AbastecimentoController extends Controller
         $controle = Equipamento::find($request->equipamento_id);
         $controle_consumo = $controle->controle_consumo;
         $controle_saida = $controle->controle_saida;
-
+        
+        $request->merge(['horimetro' => str_replace(',', '.', $request->horimetro)]);
         $abastecimento = Abastecimento::create($request->all());
 
         if ($controle_consumo == 1) {
@@ -126,13 +128,14 @@ class AbastecimentoController extends Controller
         //caso o controle de saida for 0, a cada abastecimento gera uma saida
         if ($controle_saida == 0) {
             $saida_produto = new SaidaProduto();
-            $saida_produto->equipamento_id = $request->equipamento_id;
             $saida_produto->produto_id = $request->produto_id;
             $saida_produto->quantidade = $request->quantidade;
             $saida_produto->motivo = '1';
             $saida_produto->data = $request->data;
             $saida_produto->abastecimento_id = $abastecimento->id;
             $saida_produto->save();
+
+            ##ATUALIZA ESTOQUE###
             $produto = Produto::find($request->produto_id);
             $produto->estoque_atual = $produto->estoque_atual - $request->quantidade; // desconta quantidade do estoque de produto.
             $produto->save();
@@ -371,7 +374,7 @@ class AbastecimentoController extends Controller
         $abastecimentos = DB::table('abastecimentos as ab')
             ->join('equipamentos as eq', 'eq.id', '=', 'ab.equipamento_id')
             ->join('produtos as pd', 'pd.id', '=', 'ab.produto_id')
-            ->selectRaw('ab.id as id, eq.nome as equipamento, pd.nome as produto, 
+            ->selectRaw('ab.id as id, eq.nome as equipamento, eq.cod_operacao as cod_operacao, pd.nome as produto, 
         ab.quantidade as quantidade, ab.data as data, ab.medidor_inicial as medidor_inicial, ab.medidor_final as medidor_final, ab.horimetro, ab.hora ');
 
 
@@ -382,7 +385,7 @@ class AbastecimentoController extends Controller
         if ($request->equipamento_id) {
             $filtros = '?equipamento_id=' . $request->equipamento_id;
             $abastecimentos = $abastecimentos->where('ab.equipamento_id', $request->equipamento_id);
-            $file_name = $file_name .' - '. strtoupper(Equipamento::find($request->equipamento_id)->nome);
+            $file_name = $file_name . ' - ' . strtoupper(Equipamento::find($request->equipamento_id)->nome);
         }
         if ($request->produto_id) {
             $filtros = strlen($filtros) > 0 ? $filtros . '&produto_id=' . $request->produto_id : '?produto_id=' . $request->produto_id;
@@ -393,7 +396,7 @@ class AbastecimentoController extends Controller
             $filtros = strlen($filtros) > 0 ? $filtros . '&data_inicial=' . $request->data_inicial . '&data_final=' . $request->data_final :
                 '?data_inicial=' . $request->data_inicial . '&data_final=' . $request->data_final;
             $abastecimentos = $abastecimentos->whereBetween('data', [$request->data_inicial, $request->data_final]);
-            $file_name = $file_name .' DE '. date('d-m-Y',strtotime($request->data_inicial)) . ' a ' . date('d-m-Y', strtotime($request->data_final));
+            $file_name = $file_name . ' DE ' . date('d-m-Y', strtotime($request->data_inicial)) . ' a ' . date('d-m-Y', strtotime($request->data_final));
         }
 
 

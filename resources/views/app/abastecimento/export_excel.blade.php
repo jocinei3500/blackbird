@@ -51,7 +51,7 @@
         @foreach ($abastecimentos as $abastecimento)
             <tr>
                 <td>{{ $abastecimento->id }}</td>
-                <td>{{ $abastecimento->equipamento }}</td>
+                <td>{{ $abastecimento->equipamento . ' - ' . $abastecimento->cod_operacao  }}</td>
                 <td>{{ $abastecimento->produto }}</td>
                 <td>{{ $abastecimento->quantidade }}</td>
                 <td>{{ date('d/m/Y', strtotime($abastecimento->data)) }}</td>

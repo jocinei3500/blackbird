@@ -196,19 +196,39 @@
         });
 
         // se o horímetro final for menor que o inicial da uma mensagem de erro
+        // $('#horimetro_final').change(function() {
+        //     var horimetro_inicial = $('#horimetro_inicial').val();
+        //     var horimetro_final = $('#horimetro_final').val();
+        //     var total_horas = horimetro_final - horimetro_inicial;
+        //     total_horas = total_horas.toFixed(1);
+        //     if (total_horas > 0) {
+        //         $('#qtde_horimetro').val(total_horas);
+        //     } else {
+        //         alert('O Horímetro Final deve ser maior que o horímeto inicial');
+        //         $('#horimetro_final').val('');
+        //         $('#horimetro_final').focus();
+        //     }
+        // })
+
         $('#horimetro_final').change(function() {
-            var horimetro_inicial = $('#horimetro_inicial').val();
-            var horimetro_final = $('#horimetro_final').val();
-            var total_horas = horimetro_final - horimetro_inicial;
-            total_horas = total_horas.toFixed(1);
-            if (total_horas > 0) {
-                $('#qtde_horimetro').val(total_horas);
-            } else {
-                alert('O Horímetro Final deve ser maior que o horímeto inicial');
-                $('#horimetro_final').val('');
-                $('#horimetro_final').focus();
-            }
-        })
+    var horimetro_inicial = $('#horimetro_inicial').val().replace(',', '.');
+    var horimetro_final = $('#horimetro_final').val().replace(',', '.');
+
+    horimetro_inicial = parseFloat(horimetro_inicial);
+    horimetro_final = parseFloat(horimetro_final);
+
+    var total_horas = horimetro_final - horimetro_inicial;
+
+    total_horas = total_horas.toFixed(1);
+
+    if (total_horas > 0) {
+        $('#qtde_horimetro').val(total_horas);
+    } else {
+        alert('O Horímetro Final deve ser maior que o horímetro inicial');
+        $('#horimetro_final').val('');
+        $('#horimetro_final').focus();
+    }
+});
 
     });
 </script>
