@@ -107,7 +107,12 @@ class AbastecimentoController extends Controller
         $controle_consumo = $controle->controle_consumo;
         $controle_saida = $controle->controle_saida;
         
-        $request->merge(['horimetro' => str_replace(',', '.', $request->horimetro)]);
+        //$request->merge(['horimetro' => str_replace(',', '.', $request->horimetro)]);
+        //$abastecimento = Abastecimento::create($request->all());
+
+        $horimetro = str_replace(',', '.', $request->horimetro ?? '');
+
+        $request->merge(['horimetro' => $horimetro !== '' ? $horimetro : 0]);
         $abastecimento = Abastecimento::create($request->all());
 
         if ($controle_consumo == 1) {
