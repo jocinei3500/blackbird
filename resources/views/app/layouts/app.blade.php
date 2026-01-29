@@ -39,7 +39,7 @@
             <span class="close-button" id="close-button">&times;</span>
             <h3>Mensagem Informativa: Testes de Monitoramento na Britagem</h3>
             <p>Prezados Colaboradores,</p>
-            <p>Gostaríamos de informá-los que estamos implementando novos testes de monitoramento no setor de britagem. Estas mudanças visam otimizar nosso sistema e aumentar a eficiência operacional. Os seguintes parâmetros estão sendo monitorados:</p>
+            <p>Gostaríamos de informá   -los que estamos implementando novos testes de monitoramento no setor de britagem. Estas mudanças visam otimizar nosso sistema e aumentar a eficiência operacional. Os seguintes parâmetros estão sendo monitorados:</p>
             <ul>
                 <li><strong>Horímetros:</strong> Controle do tempo de operação das máquinas.</li>
                 <li><strong>Total de Energia Gasta:</strong> Monitoramento do consumo energético durante o processo de britagem.</li>

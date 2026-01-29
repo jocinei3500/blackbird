@@ -42,7 +42,7 @@ $(function () {
 })
 
 
-document.addEventListener("DOMContentLoaded", function () {
+/*document.addEventListener("DOMContentLoaded", function () {
   var modal = document.getElementById("modalx");
   var closeButton = document.getElementById("close-button");
 
@@ -64,7 +64,7 @@ if (modalShownValue !== null && modalShownValue === 'true') {
 
 });
 
-
+//o código abaixo faz grava um cookie no computador para não mostrar mais a mensagem inicial. 
 function setCookie(name, value, days) {
   var expires = "";
   if (days) {
@@ -78,7 +78,8 @@ function setCookie(name, value, days) {
 function getCookie(name) {
   var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
   if (match) return match[2];
-}
+}*/
+
 
 
 

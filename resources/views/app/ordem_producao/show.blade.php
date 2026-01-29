@@ -42,6 +42,7 @@
                     <td class="text-center th-title" colspan="4">HORÍMETRO</td>
                     <td colspan="8" class="text-left th-title">PRODUÇÃO</td>
                 </tr>
+                @dd()
 
                 <tr>
                     <td class="text-right pr-2 th-title" colspan="2">Início</td>

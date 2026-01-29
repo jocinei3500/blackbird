@@ -22,7 +22,7 @@
         <div class="row mb-1">
             <label for="produto" class="col-md-4 col-form-label text-md-end text-right">Material Utilizado</label>
             <div class="col-md-6">
-                <select name="produto_id" id="produto_recursos" class="form-control-template" required>
+                <select name="produto_id" id="produto_recursos" class="form-control-template" >
                     <option value=""> --Selecione o Material-</option>
                     @foreach ($produtos as $produto)
                         <option value="{{ $produto->id }}">
@@ -67,7 +67,7 @@
         <div class="row mb-1">
             <label for="quantidade" class="col-md-4 col-form-label text-md-end text-right">Qtde.Material Utilizado</label>
             <div class="col-md-6 d-flex"> <!-- Adicionando classe align-items-center -->
-                <input name="quantidade" id="quantidade" type="text" class="form-control-template" value="{{ $produto->quantidade ?? old('quantidade') }}" required>
+                <input name="quantidade" id="quantidade" type="text" class="form-control-template" value="{{ $produto->quantidade ?? old('quantidade') }}" >
                 <button type="button" class="{{-- btn btn-sm btn-primary ml-2 --}}btn-sm-calc" id="bt_calcula_consumo">
                     <i class="icofont-calculator-alt-2 icofont-lg icone-cinza"></i>
                 </button>
@@ -161,8 +161,8 @@
                             <tr>
                                 <th scope="row">{{ $recurso_producao->id }}</td>
                                 <td>{{ $recurso_producao->equipamento->nome ?? '' }}</td>
-                                <td>{{ $recurso_producao->produto->nome }}</td>
-                                <td>{{ $recurso_producao->quantidade }}</td>
+                                <td>{{ $recurso_producao->produto->nome ?? '' }}</td>
+                                <td>{{ $recurso_producao->quantidade ?? '' }}</td>
                                 <td>{{ $recurso_producao->horimetro_final ?? '' }}</td>
                                 <td>
                                     <div class="btn-group btn-group-actions visible-on-hover">
