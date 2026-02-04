@@ -28,21 +28,23 @@
                 <tr>
 
                     <td class="text-right th-title pr-2" style="width: 6rem;" colspan="2">CÓDIGO</td>
+                    
                     <td class="pl-2" style="width: 6rem;" colspan="2">{{ $ordem_producao->id }}</td>
                     <td class="text-right th-title pr-2" style="width: 6rem;" colspan="2">Data</td>
                     <td class="pl-2" style="width: 5px;" colspan="2">
                         {{ Carbon\Carbon::parse($ordem_producao->data)->format('d/m/Y') }}</td>
                     <td class="th-title pr-2 text-right" colspan="2">Estado da Ordem</td>
                     <td class="pl-2" colspan="2">{{ $ordem_producao->status->nome }}</td>
-                    <td colspan="4" class="th-title"></td>
+                    <td colspan="4" class="th-title"></td>      
                 </tr>
 
+                
+
                 <tr>
-                    <td class="text-center th-title" colspan="4">HORÁRIO OPERAÇÃO</td>
-                    <td class="text-center th-title" colspan="4">HORÍMETRO</td>
+                    <td class="text-center th-title" colspan="4" class="text-left th-title">HORÁRIO OPERAÇÃO</td>
+                    <td class="text-center th-title" colspan="4" class="text-left th-title">HORÍMETRO</td>
                     <td colspan="8" class="text-left th-title">PRODUÇÃO</td>
                 </tr>
-                @dd()
 
                 <tr>
                     <td class="text-right pr-2 th-title" colspan="2">Início</td>
@@ -61,10 +63,9 @@
                     <td class="text-right th-title pr-2" colspan="2">Término</td>
                     <td class="pl-2" colspan="2">{{ $ordem_producao->hora_fim }}</td>
                     <td class="text-right th-title pr-2" colspan="2">Término</td>
-                    <td class="pl-2" colspan="2">{{ number_format($ordem_producao->horimetro_final, 2) }}</td>
+                     <!--<td class="pl-2" colspan="2">{{ is_numeric($op_horimetro_inicial) ? number_format($op_horimetro_inicial, 2) : '-' }}</td>-->
                     <td class="text-right th-title pr-2" colspan="2">PRODUÇÃO</td>
-                    <td class="pl-2" colspan="2">{{ str_replace(',', '.', number_format($producao_por_hora, 0)) }}
-                        {{ $ordem_producao->produto->unidade_medida->nome }}/h</td>
+                    <td class="pl-2" colspan="2">{{ is_numeric($producao_por_hora)? str_replace(',', '.', number_format($producao_por_hora, 0)): '-'}}{{ $ordem_producao->produto->unidade_medida->nome }}/h</td>
                     <td class="th-title" colspan="2"></td>
                     <td class="th-title" colspan="2"></td>
 

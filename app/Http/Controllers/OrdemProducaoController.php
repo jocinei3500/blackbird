@@ -116,7 +116,7 @@ class OrdemProducaoController extends Controller
         //dd($total_producao_do_dia);
 
         $resumo_producao = DB::table('obras as o')
-                        ->join('produtos_obra as po', 'o.id', '=', 'po.obra_id')
+            ->join('produtos_obra as po', 'o.id', '=', 'po.obra_id')
             ->join('ordens_producoes as op', 'po.ordem_producao_id', '=', 'op.id')
             ->join('recursos_producao as rp', 'op.id', '=', 'rp.ordem_producao_id')
             ->join('produtos as p', 'p.id', '=', 'rp.produto_id')
@@ -218,7 +218,8 @@ class OrdemProducaoController extends Controller
             $ordem_producao = $exists_ordem;
         }
         return view(
-            'app.ordem_producao.create_edit',[
+            'app.ordem_producao.create_edit',
+            [
                 'produtos' => $produtos,
                 'equipamentos' => $equipamentos,
                 'ordem_producao' => $ordem_producao,
@@ -248,7 +249,8 @@ class OrdemProducaoController extends Controller
             $request['ordem_producao_id'] = $ordem_producao->id; //adiciona mais um ítem no Array '$request'.
             $request['equipamento_id'] = $request['equipamento_recursos'];
             unset($request['equipamento_recursos']); //apaga o campo equipamento_recurso, que é substituído por equipamento_id.
-            $request['horimetro_final'] = $request['horimetro_final_rec'];
+            //$request['horimetro_final'] = $request['horimetro_final_rec'];
+            $request['horimetro_final'] = $request['horimetro_final_rec'] === '' ? null : $request['horimetro_final_rec'];
             unset($request['horimetro_final_rec']);
             $recurso_producao = RecursosProducao::create($request->all());
 
@@ -257,13 +259,26 @@ class OrdemProducaoController extends Controller
             $equipamento->quant_tanque = $equipamento->quant_tanque - $request->quantidade;
             $equipamento->save();
 
-            $consumo = new Consumo();
+            //dd($request->all());
+
+            /* $consumo = new Consumo();
             $consumo->recurso_producao_id = $recurso_producao->id;
             $consumo->equipamento_id = $request->equipamento_id;
             $consumo->produto_id = $request->produto_id;
             $consumo->quantidade = $request->quantidade;
             $consumo->data = $request->data;
-            $consumo->save();
+            $consumo->save();*/
+
+            if (!is_null($request->produto_id)) {
+
+                $consumo = new Consumo();
+                $consumo->recurso_producao_id = $recurso_producao->id;
+                $consumo->equipamento_id = $request->equipamento_id;
+                $consumo->produto_id = $request->produto_id;
+                $consumo->quantidade = $request->quantidade;
+                $consumo->data = $request->data;
+                $consumo->save();
+            }
 
 
             ### Caso o campo controle_saida de equipamentos seja 1 etão nessa etapa é gerada uma saíde de produto
@@ -396,16 +411,40 @@ class OrdemProducaoController extends Controller
     public function show(OrdemProducao $ordem_producao)
     {
         //horimetro inicial da ordem de operação
-        $op_horimetro_inicial = DB::table('ordens_producoes')->selectRaw(' max(horimetro_final) as horimetro_inicial')
-            ->where('equipamento_id', $ordem_producao->equipamento_id)
-            ->where('horimetro_final', '<', $ordem_producao->horimetro_final)->first();
+        //$op_horimetro_inicial = DB::table('ordens_producoes')->selectRaw(' max(horimetro_final) as horimetro_inicial')
+        //  ->where('equipamento_id', $ordem_producao->equipamento_id)
+        //->where('horimetro_final', '<', $ordem_producao->horimetro_final)->first();
 
-        if ($op_horimetro_inicial->horimetro_inicial == null) {
+        if ($ordem_producao->horimetro_final !== null) {
+            $op_horimetro_inicial = DB::table('ordens_producoes')
+                ->selectRaw('MAX(horimetro_final) as horimetro_inicial')
+                ->where('equipamento_id', $ordem_producao->equipamento_id)
+                ->whereNotNull('horimetro_final')
+                ->where('horimetro_final', '<', $ordem_producao->horimetro_final)
+                ->first();
+        } else {
+            $op_horimetro_inicial = null;
+        }
+
+
+
+        /* if ($op_horimetro_inicial->horimetro_inicial == null) {
             $op_horimetro_inicial = $ordem_producao->horimetro_final;
             $total_horimetro = 0.0;
         } else {
             $op_horimetro_inicial = $op_horimetro_inicial->horimetro_inicial;
             $total_horimetro =  $ordem_producao->horimetro_final - $op_horimetro_inicial;
+        }*/
+
+        if (
+            $op_horimetro_inicial === null ||
+            $op_horimetro_inicial->horimetro_inicial === null
+        ) {
+            $op_horimetro_inicial = $ordem_producao->horimetro_final;
+            $total_horimetro = 0.0;
+        } else {
+            $op_horimetro_inicial = $op_horimetro_inicial->horimetro_inicial;
+            $total_horimetro = $ordem_producao->horimetro_final - $op_horimetro_inicial;
         }
 
 
@@ -422,20 +461,42 @@ class OrdemProducaoController extends Controller
             $producao_por_hora = '';
         }
 
-        $recursos_producao = DB::table('recursos_producao as rp')
+        /*$recursos_producao = DB::table('recursos_producao as rp')
             ->join('equipamentos as eq', 'eq.id', '=', 'rp.equipamento_id')
             ->join('produtos as p', 'p.id', '=', 'rp.produto_id')
             ->selectRaw('rp.*, eq.nome as equipamento, p.nome as produto')
             ->where('rp.ordem_producao_id', $ordem_producao->id)
-            ->where('rp.quantidade', '>', 1)->get();
+            ->where('rp.quantidade', '>', 1)->get();*/
+
+        $recursos_producao = DB::table('recursos_producao as rp')
+            ->join('equipamentos as eq', 'eq.id', '=', 'rp.equipamento_id')
+            ->leftJoin('produtos as p', 'p.id', '=', 'rp.produto_id')
+            ->selectRaw('
+        rp.*,
+        eq.nome as equipamento,
+        p.nome as produto
+    ')
+            ->where('rp.ordem_producao_id', $ordem_producao->id)
+            ->where(function ($q) {
+                $q->where('rp.quantidade', '>', 0)
+                    ->orWhereNotNull('rp.horimetro_final');
+            })
+            ->get();
+
 
         //adiciona horimetro_inicial, total_horimetro na collection
         foreach ($recursos_producao as $recurso) {
             $hora_inicio = Carbon::createFromDate($recurso->hora_inicio); //formata hora do carbon
             $hora_fim = Carbon::createFromDate($recurso->hora_fim); //formata hora do carbon
-            $hours = $hora_fim->diffInHours($hora_inicio); //recebe a diferença em horas sem minutos
-            $minutes = ($hora_fim->diffInMinutes($hora_inicio)) % 60; //recebe o total em minutos e pega o resto da divisão por 60
-            $recurso->total_hora = $hours . ':' . $minutes; // concatena horas e minutos com os ':'
+
+            // $hours = $hora_fim->diffInHours($hora_inicio); //recebe a diferença em horas sem minutos
+            //$minutes = ($hora_fim->diffInMinutes($hora_inicio)) % 60; //recebe o total em minutos e pega o resto da divisão por 60
+            //$recurso->total_hora = $hours . ':' . $minutes; // concatena horas e minutos com os ':'
+
+            $hours = $hora_fim->diffInHours($hora_inicio);
+            $minutes = $hora_fim->diffInMinutes($hora_inicio) % 60;
+            $total_horas_equipamento = sprintf('%02d:%02d', $hours, $minutes);
+            $recurso->total_hora = $total_horas_equipamento;
 
             if (($recurso->horimetro_final != null) and ($recurso->horimetro_final != 0)) { //VERIFICA SE O EQUIPAMENTO TEM HORÍMETRO
                 $horimetro_inicial = DB::table('recursos_producao')->selectRaw(' max(horimetro_final) as horimetro_inicial')
@@ -456,15 +517,27 @@ class OrdemProducaoController extends Controller
             $recurso->consumo_quant = $recurso->quantidade / $ordem_producao->quantidade_producao * 1000;
 
 
-            $estoque = Produto::select('estoque_atual')
-                ->where('id', $recurso->produto_id)->first();
-            $recurso->estoque_atual = $estoque->estoque_atual;
+            //$estoque = Produto::select('estoque_atual')
+            //  ->where('id', $recurso->produto_id)->first();
+
+            if ($recurso->produto_id) {
+                $estoque = Produto::select('estoque_atual')
+                    ->where('id', $recurso->produto_id)
+                    ->first();
+
+                $recurso->estoque_atual = $estoque?->estoque_atual ?? 0;
+            } else {
+                $recurso->estoque_atual = null;
+            }
+
+
+            //$recurso->estoque_atual = $estoque->estoque_atual;
             /* soma quantidade total de entrada de produto até a data da ordem de produção 
             depois a saida de produto da mesma forma subtrai a saida da entrada*/
             $total_consumo = RecursosProducao::where('data', '<=', $ordem_producao->data)
                 ->where('equipamento_id', $recurso->equipamento_id)->get('quantidade');
             $total_consumo = $total_consumo->sum('quantidade');
-            
+
             $total_abastecimento = Abastecimento::where('data', '<=', $ordem_producao->data)
                 ->where('equipamento_id', $recurso->equipamento_id)->get('quantidade');
             $total_abastecimento = $total_abastecimento->sum('quantidade');
@@ -549,7 +622,9 @@ class OrdemProducaoController extends Controller
         $transportadoras = Transportadora::all();
         $ordem_producao->update($request->all());
 
-        return view( 'app.ordem_producao.create_edit',[
+        return view(
+            'app.ordem_producao.create_edit',
+            [
                 'produtos' => $produtos,
                 'equipamentos' => $equipamentos,
                 'ordem_producao' => $ordem_producao,
@@ -580,11 +655,11 @@ class OrdemProducaoController extends Controller
                 $produto->save();
             }
 
-            $consumo=Consumo::where('recurso_producao_id', $recurso->id)->first();
-            if(!empty($consumo)){
+            $consumo = Consumo::where('recurso_producao_id', $recurso->id)->first();
+            if (!empty($consumo)) {
                 $consumo->delete();
-                $equipamento=Equipamento::find($recurso->equipamento_id);
-                $equipamento->quant_tanque= $equipamento->quant_tanque + $recurso->quantidade;
+                $equipamento = Equipamento::find($recurso->equipamento_id);
+                $equipamento->quant_tanque = $equipamento->quant_tanque + $recurso->quantidade;
                 $equipamento->save();
             }
         }
@@ -705,7 +780,7 @@ class OrdemProducaoController extends Controller
             $total_consumo = RecursosProducao::where('data', '<=', $ordem_producao->data)
                 ->where('equipamento_id', $recurso->equipamento_id)->get('quantidade');
             $total_consumo = $total_consumo->sum('quantidade');
-            
+
             $total_abastecimento = Abastecimento::where('data', '<=', $ordem_producao->data)
                 ->where('equipamento_id', $recurso->equipamento_id)->get('quantidade');
             $total_abastecimento = $total_abastecimento->sum('quantidade');
@@ -736,8 +811,7 @@ class OrdemProducaoController extends Controller
             'total_horimetro' => $total_horimetro,
             'total_horas_equipamento' => $total_horas_equipamento,
             'producao_por_hora' => $producao_por_hora,
-        ] );
+        ]);
         return $pdf->stream('Ordem_producao.pdf');
-
     }
 }

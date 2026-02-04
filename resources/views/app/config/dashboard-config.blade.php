@@ -22,10 +22,7 @@
                         <tr>
                             <td>{{ $produto->produto->nome }}</td>
                             <td>
-                                <a class="btn btn-sm-template btn-outline-danger" href="#" data-bs-toggle="modal"
-                                    @can('admin')data-bs-target="#deleteModal"
-                                        @elsecan('user') data-bs-target="#modal_msg" @endcan
-                                    data-id="{{ $produto->id }}">
+                                <a class="btn btn-sm-template btn-outline-danger" href="#" data-bs-toggle="modal">
                                     <i class="icofont-ui-delete"></i>
                                 </a>
                             </td>
@@ -34,9 +31,6 @@
                     @endforeach
                 </tbody>
             </table>
-            @component('app.shared.modal_delete')
-                {{ route('produto.destroy') }}
-            @endcomponent
             @component('app.shared.modal_msg_no_permission')
             @endcomponent
 
