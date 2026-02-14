@@ -28,6 +28,10 @@
                 <a href="{{ route('ordem-producao.edit-filter') }}" class="btn btn-sm btn-primary mb-1">
                     <i class="icofont-filter"></i>CONSULTA AVANÇADA
                 </a>
+
+                <a href="{{ route('ordem-producao.show2') }}" class="btn btn-sm btn-primary mb-1">
+                    <i class="icofont-filter"></i>show2
+                </a>
             </div>
 
         </div>

@@ -186,6 +186,10 @@ Route::middleware('auth')->prefix('/ordem-producao')->group(function() {
 
     Route::get('show/{ordem_producao}','App\Http\Controllers\OrdemProducaoController@show'
     )->name('ordem-producao.show');
+    #####
+    ###   Rota de teste     #####
+    Route::get('show2','App\Http\Controllers\OrdemProducaoController@show2'
+    )->name('ordem-producao.show2');
 
     Route::get('{ordem_producao}/edit/{tab_active?}','App\Http\Controllers\OrdemProducaoController@edit'
     )->name('ordem-producao.edit');

@@ -814,4 +814,8 @@ class OrdemProducaoController extends Controller
         ]);
         return $pdf->stream('Ordem_producao.pdf');
     }
+
+    public function show2(){
+        return view('app.ordem_producao.show2');
+    }
 }
